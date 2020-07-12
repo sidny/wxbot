@@ -1,0 +1,16 @@
+FROM zixia/wechaty
+
+ADD .npmrc /root/
+ADD src /bot/src
+ADD package-zixia-wechaty.json /bot/package.json
+
+RUN set -eux;\
+    npm i 
+
+VOLUME [ \
+    "/bot/logs",\ 
+    "/bot/.wechaty",\
+    "/bot/config",\
+    ]
+
+CMD ["src/index.js"]
