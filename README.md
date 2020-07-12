@@ -1,6 +1,14 @@
 # wxbot
 简单实现了下通过机器人在微信群间同步消息的机制
 
+# 依赖
+node: >= v12
+
+wechaty：wechaty核心库
+
+wechaty-puppet-padplus：wechaty的ipad协议实现
+
+
 # 运行
 
 本地安装 npm i ; npm run serve
