@@ -1,16 +1,37 @@
-FROM zixia/wechaty
+FROM node:12.18.2-stretch as builder
 
+ADD package.json /bot/package.json
+ADD .npmrc /root/.npmrc
+RUN set -eux ; \
+    cd /bot/; \
+    npm i --prod --unsafe-perm
+
+FROM node:12.18.2-stretch-slim
 ADD .npmrc /root/
 ADD src /bot/src
-ADD package-zixia-wechaty.json /bot/package.json
+ADD config /bot/config
+ADD package.json /bot/package.json
+COPY --from=builder /bot/node_modules /bot/node_modules
 
+
+WORKDIR /bot/
 RUN set -eux;\
-    npm i 
+    echo 'deb http://mirrors.163.com/debian/ stretch main non-free contrib' > /etc/apt/sources.list ; \
+    echo 'deb http://mirrors.163.com/debian/ stretch-updates main non-free contrib' >> /etc/apt/sources.list ;\
+    echo 'deb http://mirrors.163.com/debian/ stretch-backports main non-free contrib' >> /etc/apt/sources.list ;\
+    echo 'deb-src http://mirrors.163.com/debian/ stretch main non-free contrib' >> /etc/apt/sources.list ;\
+    echo 'deb-src http://mirrors.163.com/debian/ stretch-updates main non-free contrib' >> /etc/apt/sources.list ;\
+    echo 'deb-src http://mirrors.163.com/debian/ stretch-backports main non-free contrib' >> /etc/apt/sources.list ;\
+    echo 'deb http://mirrors.163.com/debian-security/ stretch/updates main non-free contrib' >> /etc/apt/sources.list ;\
+    echo 'deb-src http://mirrors.163.com/debian-security/ stretch/updates main non-free contrib' >> /etc/apt/sources.list ;\
+    apt install tzdata ; \ 
+    cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'Asia/Shanghai' >/etc/timezone;\
+    apt clean 
 
 VOLUME [ \
-    "/bot/logs",\ 
-    "/bot/.wechaty",\
-    "/bot/config",\
+    "/bot/.wechaty" \
+    "/bot/logs" \
+    "/bot/config" \
     ]
 
-CMD ["src/index.js"]
+CMD ["npm","run", "serve"]
